@@ -61,9 +61,10 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
         connection.query("INSERT INTO  invites VALUES (" + connection.escape(count.toString()) + ", " + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(message.split("/").slice(-1)[0]) + ");")
     }
     else if (message.split(" ")[0] === "<@" + bot.id + ">" && message.split(" ")[1] === "count") {
-        console.log(rawEvent)
         var query = connection.query("SELECT COUNT(messagetext) FROM messages WHERE messagetext LIKE " + connection.escape("%" + message.split(" ").slice(2).join(" ") + "%") + ";", function(err, result){
-            console.log(query.sql)
+            console.log(query.sql);
+            tempRes = JSON.stringify(result)
+            console.log(JSON.stringify(result))
             if (err) {
                 bot.sendMessage({
                     to: channelID,
@@ -71,10 +72,9 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
                 });
             }
             else {
-                console.log(result)
                 bot.sendMessage({
                     to: channelID,
-                    message: JSON.stringify(result)
+                    message: JSON.stringify(result).slice(23, -2) + " messages contain `" + message.split(" ").slice(2).join(" ") + "`"
                 });
             }
         });
