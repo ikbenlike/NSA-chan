@@ -40,10 +40,10 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
             connection.end(function(err){});
         } else {
             if (channelID in bot.directMessages) {
-                connection.query("INSERT INTO report VALUES (" + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(user + " attempted shutdown") + ", " + connection.escape(bot.serverFromChannel(channelID)) + ", \"PM\");")
+                connection.query("INSERT INTO report VALUES (" + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(user + " attempted shutdown") + ", " + connection.escape(bot.serverFromChannel(channelID)) + ", \"PM\", \"PM\");")
             }
             else {
-                connection.query("INSERT INTO report VALUES (" + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(user + " attempted shutdown") + ", " + connection.escape(bot.serverFromChannel(channelID)) + ", " + connection.escape(bot.servers[bot.serverFromChannel(channelID)].name) + ");")
+                connection.query("INSERT INTO report VALUES (" + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(user + " attempted shutdown") + ", " + connection.escape(bot.serverFromChannel(channelID)) + ", " + connection.escape(bot.servers[bot.serverFromChannel(channelID)].name) + ", " + channelID + ");")
             }
             bot.sendMessage({
                 to: channelID,
@@ -61,6 +61,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
         connection.query("INSERT INTO  invites VALUES (" + connection.escape(count.toString()) + ", " + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(message.split("/").slice(-1)[0]) + ");")
     }
     else if (message.split(" ")[0] === "<@" + bot.id + ">" && message.split(" ")[1] === "count") {
+        console.log(rawEvent)
         var query = connection.query("SELECT COUNT(messagetext) FROM messages WHERE messagetext LIKE " + connection.escape("%" + message.split(" ").slice(2).join(" ") + "%") + ";", function(err, result){
             console.log(query.sql)
             if (err) {
@@ -79,9 +80,14 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
         });
     }
     if (channelID in bot.directMessages) {
-        connection.query("INSERT INTO  messages VALUES (" + connection.escape(count.toString()) + ", " + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(message) + ", " + connection.escape(channelID) + ", \"PM\", \"0\");")
-    } else {
-        connection.query("INSERT INTO  messages VALUES (" + connection.escape(count.toString()) + ", " + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(message) + ", " + connection.escape(bot.serverFromChannel(channelID)) + ", " + connection.escape(bot.servers[bot.serverFromChannel(channelID)].name) + ", \"0\");")
+        connection.query("INSERT INTO  messages VALUES (" + connection.escape(count.toString()) + ", " + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(message) + ", " + connection.escape(channelID) + ", \"PM\", \"0\", \"PM\");")
+    }
+    else {
+        connection.query("INSERT INTO  messages VALUES (" + connection.escape(count.toString()) + ", " + connection.escape(user) + ", " + connection.escape(userID) + ", " + connection.escape(message) + ", " + connection.escape(bot.serverFromChannel(channelID)) + ", " + connection.escape(bot.servers[bot.serverFromChannel(channelID)].name) + ", \"0\", " + channelID + ");")
         connection.query("ALTER TABLE messages MODIFY COLUMN goodCount INT AUTO_INCREMENT;")
     }
+});
+
+bot.on('disconnected', function() {
+    bot.connect();
 });
