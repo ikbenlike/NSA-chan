@@ -30,6 +30,12 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
             message: bot.id
         });
     }
+    if (message === "<@" + bot.id + ">" + " source") {
+        bot.sendMessage({
+            to: channelID,
+            message: "here is my source code: https://github.com/ikbenlike/NSA-chan"
+        });
+    }
     else if (message === "<@" + bot.id + ">" + " kill") {
         if (userID == loginDetails.adminid){
             bot.sendMessage({
@@ -62,9 +68,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, server) {
     }
     else if (message.split(" ")[0] === "<@" + bot.id + ">" && message.split(" ")[1] === "count") {
         var query = connection.query("SELECT COUNT(messagetext) FROM messages WHERE messagetext LIKE " + connection.escape("%" + message.split(" ").slice(2).join(" ") + "%") + ";", function(err, result){
-            console.log(query.sql);
-            tempRes = JSON.stringify(result)
-            console.log(JSON.stringify(result))
             if (err) {
                 bot.sendMessage({
                     to: channelID,
